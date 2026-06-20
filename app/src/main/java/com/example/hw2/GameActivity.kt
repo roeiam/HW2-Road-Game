@@ -1,6 +1,7 @@
 package com.example.hw2
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.Sensor
@@ -37,21 +38,30 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         private const val OBSTACLE = 1
         private const val COIN = 2
 
+        private const val BUTTONS_FAST_DELAY = 450L
+        private const val BUTTONS_SLOW_DELAY = 800L
+
         private const val SENSOR_THRESHOLD = 3.5f
         private const val SENSOR_MOVE_DELAY = 350L
         private const val STATUS_MESSAGE_DELAY = 1100L
 
-        private const val LOCATION_PERMISSION_REQUEST_CODE = 1001
+        private const val SENSOR_FAST_DELAY = 400L
+        private const val SENSOR_NORMAL_DELAY = 650L
+        private const val SENSOR_SLOW_DELAY = 900L
+        private const val SENSOR_SPEED_THRESHOLD = 2.2f
+        private const val SENSOR_SPEED_CHANGE_DELAY = 700L
 
-        private const val ISRAEL_MIN_LAT = 29.55
-        private const val ISRAEL_MAX_LAT = 33.28
-        private const val ISRAEL_MIN_LNG = 34.27
-        private const val ISRAEL_MAX_LNG = 35.90
+        private const val SENSOR_GEAR_SLOW = 0
+        private const val SENSOR_GEAR_NORMAL = 1
+        private const val SENSOR_GEAR_FAST = 2
+
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1001
     }
 
     private lateinit var gameTxtLives: TextView
     private lateinit var gameTxtCoins: TextView
     private lateinit var gameTxtDistance: TextView
+    private lateinit var gameTxtSpeed: TextView
     private lateinit var gameTxtStatus: TextView
     private lateinit var gameTxtGameOverTitle: TextView
     private lateinit var gameTxtGameOverScore: TextView
@@ -60,6 +70,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var gameBtnLeft: Button
     private lateinit var gameBtnRight: Button
     private lateinit var gameBtnNewGame: Button
+    private lateinit var gameBtnMenu: Button
     private lateinit var gameBtnHighScores: Button
 
     private lateinit var gameLayoutButtons: LinearLayout
@@ -77,6 +88,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
     private var lastSensorMoveTime = 0L
+    private var lastSensorSpeedChangeTime = 0L
+    private var sensorSpeedGear = SENSOR_GEAR_NORMAL
 
     private lateinit var locationManager: LocationManager
     private var currentLatitude = 0.0
@@ -88,7 +101,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     private var coins = 0
     private var distance = 0
     private var gameMode = MainActivity.MODE_BUTTONS_SLOW
-    private var gameDelay = 700L
+    private var gameDelay = BUTTONS_SLOW_DELAY
     private var isGameRunning = false
     private var isScoreSaved = false
     private var lastSavedScoreDate: String? = null
@@ -204,6 +217,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         return fineLocationGranted || coarseLocationGranted
     }
 
+    @SuppressLint("MissingPermission")
     private fun updateCurrentLocationIfPossible(): Boolean {
         if (!hasLocationPermission()) {
             hasRealLocation = false
@@ -266,6 +280,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         gameTxtLives = findViewById(R.id.game_TXT_lives)
         gameTxtCoins = findViewById(R.id.game_TXT_coins)
         gameTxtDistance = findViewById(R.id.game_TXT_distance)
+        gameTxtSpeed = findViewById(R.id.game_TXT_speed)
         gameTxtStatus = findViewById(R.id.game_TXT_status)
         gameTxtGameOverTitle = findViewById(R.id.game_TXT_game_over_title)
         gameTxtGameOverScore = findViewById(R.id.game_TXT_game_over_score)
@@ -274,6 +289,7 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         gameBtnLeft = findViewById(R.id.game_BTN_left)
         gameBtnRight = findViewById(R.id.game_BTN_right)
         gameBtnNewGame = findViewById(R.id.game_BTN_new_game)
+        gameBtnMenu = findViewById(R.id.game_BTN_menu)
         gameBtnHighScores = findViewById(R.id.game_BTN_high_scores)
 
         gameLayoutButtons = findViewById(R.id.game_LAYOUT_buttons)
@@ -340,12 +356,8 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun initViews() {
-        gameDelay = when (gameMode) {
-            MainActivity.MODE_BUTTONS_FAST -> 450L
-            MainActivity.MODE_BUTTONS_SLOW -> 800L
-            MainActivity.MODE_SENSORS -> 650L
-            else -> 800L
-        }
+        sensorSpeedGear = SENSOR_GEAR_NORMAL
+        gameDelay = getInitialDelay()
 
         if (gameMode == MainActivity.MODE_SENSORS) {
             gameLayoutButtons.visibility = View.GONE
@@ -367,13 +379,27 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
             restartGame()
         }
 
+        gameBtnMenu.setOnClickListener {
+            openMenu()
+        }
+
         gameBtnHighScores.setOnClickListener {
             openHighScores()
         }
 
         updateStatus("")
+        updateSpeedText(getCurrentSpeedText())
         updateTopBar()
         renderBoard()
+    }
+
+    private fun getInitialDelay(): Long {
+        return when (gameMode) {
+            MainActivity.MODE_BUTTONS_FAST -> BUTTONS_FAST_DELAY
+            MainActivity.MODE_BUTTONS_SLOW -> BUTTONS_SLOW_DELAY
+            MainActivity.MODE_SENSORS -> SENSOR_NORMAL_DELAY
+            else -> BUTTONS_SLOW_DELAY
+        }
     }
 
     private fun startGame() {
@@ -403,14 +429,25 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         isScoreSaved = false
         lastSavedScoreDate = null
         lastSensorMoveTime = 0L
+        lastSensorSpeedChangeTime = 0L
+        sensorSpeedGear = SENSOR_GEAR_NORMAL
+        gameDelay = getInitialDelay()
 
         gameLayoutGameOver.visibility = View.GONE
 
         updateStatus("New game started")
+        updateSpeedText(getCurrentSpeedText())
         scheduleStatusReset()
         updateTopBar()
         renderBoard()
         startGame()
+    }
+
+    private fun openMenu() {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        startActivity(intent)
+        finish()
     }
 
     private fun openHighScores() {
@@ -535,10 +572,39 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
     }
 
     private fun getRandomIsraelLocation(): Pair<Double, Double> {
-        val randomLatitude = Random.nextDouble(ISRAEL_MIN_LAT, ISRAEL_MAX_LAT)
-        val randomLongitude = Random.nextDouble(ISRAEL_MIN_LNG, ISRAEL_MAX_LNG)
+        val israelLocations = listOf(
+            Pair(32.0853, 34.7818), // Tel Aviv
+            Pair(31.7683, 35.2137), // Jerusalem
+            Pair(32.7940, 34.9896), // Haifa
+            Pair(31.2518, 34.7913), // Be'er Sheva
+            Pair(32.3215, 34.8532), // Netanya
+            Pair(31.9730, 34.7925), // Rishon LeZion
+            Pair(31.8948, 34.8113), // Rehovot
+            Pair(32.0840, 34.8878), // Petah Tikva
+            Pair(32.1782, 34.9076), // Kfar Saba
+            Pair(32.1663, 34.8433), // Herzliya
+            Pair(32.0231, 34.7503), // Holon
+            Pair(32.0158, 34.7874), // Bat Yam
+            Pair(31.8044, 34.6553), // Ashdod
+            Pair(31.6688, 34.5743), // Ashkelon
+            Pair(32.6996, 35.3035), // Nazareth
+            Pair(32.9236, 35.2933), // Karmiel
+            Pair(32.9281, 35.0765), // Acre
+            Pair(33.2073, 35.5708), // Kiryat Shmona
+            Pair(32.9656, 35.4950), // Safed
+            Pair(32.7922, 35.5312), // Tiberias
+            Pair(32.6091, 35.2891), // Afula
+            Pair(32.4340, 34.9196), // Hadera
+            Pair(32.1848, 34.8713), // Ra'anana
+            Pair(31.9061, 35.0078), // Modi'in
+            Pair(31.4215, 34.5969), // Netivot
+            Pair(31.5250, 34.5950), // Sderot
+            Pair(31.0461, 34.8516), // Dimona
+            Pair(30.6102, 34.8019), // Mitzpe Ramon
+            Pair(29.5577, 34.9519)  // Eilat
+        )
 
-        return Pair(randomLatitude, randomLongitude)
+        return israelLocations.random()
     }
 
     private fun calculateScore(): Int {
@@ -590,6 +656,36 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         gameTxtStatus.text = message
     }
 
+    private fun updateSpeedText(speedText: String) {
+        gameTxtSpeed.text = speedText
+    }
+
+    private fun getCurrentSpeedText(): String {
+        return when (gameMode) {
+            MainActivity.MODE_BUTTONS_FAST -> "FAST"
+            MainActivity.MODE_BUTTONS_SLOW -> "SLOW"
+            MainActivity.MODE_SENSORS -> {
+                when (sensorSpeedGear) {
+                    SENSOR_GEAR_SLOW -> "SLOW"
+                    SENSOR_GEAR_FAST -> "FAST"
+                    else -> "NORMAL"
+                }
+            }
+
+            else -> "NORMAL"
+        }
+    }
+
+    private fun updateSensorDelayByGear() {
+        gameDelay = when (sensorSpeedGear) {
+            SENSOR_GEAR_SLOW -> SENSOR_SLOW_DELAY
+            SENSOR_GEAR_FAST -> SENSOR_FAST_DELAY
+            else -> SENSOR_NORMAL_DELAY
+        }
+
+        updateSpeedText(getCurrentSpeedText())
+    }
+
     private fun updateTopBar() {
         gameTxtLives.text = "Lives: $lives"
         gameTxtCoins.text = "Coins: $coins"
@@ -628,6 +724,32 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
         }
     }
 
+    private fun updateSensorSpeed(y: Float) {
+        if (gameMode != MainActivity.MODE_SENSORS || !isGameRunning) {
+            return
+        }
+
+        val currentTime = System.currentTimeMillis()
+
+        if (currentTime - lastSensorSpeedChangeTime < SENSOR_SPEED_CHANGE_DELAY) {
+            return
+        }
+
+        if (y < -SENSOR_SPEED_THRESHOLD) {
+            if (sensorSpeedGear < SENSOR_GEAR_FAST) {
+                sensorSpeedGear++
+                updateSensorDelayByGear()
+                lastSensorSpeedChangeTime = currentTime
+            }
+        } else if (y > SENSOR_SPEED_THRESHOLD) {
+            if (sensorSpeedGear > SENSOR_GEAR_SLOW) {
+                sensorSpeedGear--
+                updateSensorDelayByGear()
+                lastSensorSpeedChangeTime = currentTime
+            }
+        }
+    }
+
     override fun onSensorChanged(event: SensorEvent?) {
         if (gameMode != MainActivity.MODE_SENSORS || !isGameRunning) {
             return
@@ -637,13 +759,16 @@ class GameActivity : AppCompatActivity(), SensorEventListener {
             return
         }
 
+        val x = event.values[0]
+        val y = event.values[1]
+
+        updateSensorSpeed(y)
+
         val currentTime = System.currentTimeMillis()
 
         if (currentTime - lastSensorMoveTime < SENSOR_MOVE_DELAY) {
             return
         }
-
-        val x = event.values[0]
 
         if (x > SENSOR_THRESHOLD) {
             moveLeft()

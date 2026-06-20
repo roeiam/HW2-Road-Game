@@ -59,17 +59,36 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/game_TXT_status"
+        <FrameLayout
+            android:id="@+id/game_LAYOUT_status_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:minHeight="26dp"
-            android:text="Avoid obstacles and collect coins"
-            android:textColor="#455A64"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:paddingBottom="6dp" />
+            android:paddingBottom="6dp">
+
+            <TextView
+                android:id="@+id/game_TXT_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:minHeight="26dp"
+                android:text=""
+                android:textColor="#455A64"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/game_TXT_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="2dp"
+                android:text="NORMAL"
+                android:textColor="#455A64"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+        </FrameLayout>
 
         <GridLayout
             android:id="@+id/game_GRID_board"
@@ -202,6 +221,15 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="New Game"
+            android:textAllCaps="false"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/game_BTN_menu"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:text="Menu"
             android:textAllCaps="false"
             android:textSize="18sp" />
 

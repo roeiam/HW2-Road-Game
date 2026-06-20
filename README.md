@@ -14,37 +14,44 @@ Road Game is an Android arcade road game developed in Kotlin as the second homew
 
 The player controls a car on a five-lane road, avoids obstacles, collects coins, and tries to achieve the highest score.
 
-The game supports button controls and sensor controls.  
+The game supports both button controls and sensor controls.
 It also includes a high scores screen with a top 10 score table and a Google Map that shows the location where each score was recorded.
+
+The project includes the required HW2 features and also implements the bonus sensor speed feature.
 
 ---
 
 ## Main Features
 
-- Main menu screen
-- Buttons mode - slow speed
-- Buttons mode - fast speed
-- Sensor mode using the accelerometer
-- Five-lane road
-- Long road board
-- Visual matrix-based game board
-- Obstacles on the road
-- Coins on the road
-- Lives counter
-- Coins counter
-- Distance counter / odometer
-- Crash sound effect
-- Coin collection sound effect
-- Game over screen
-- New game button after game over
-- High scores button after game over
-- High scores screen with two fragments
-- Top 10 high scores table
-- Google Map showing score locations
-- Clicking a score updates the map location
-- Selected score is highlighted in the score table
-- Custom app launcher icon
-- Location support for score records
+* Main menu screen
+* Buttons mode - slow speed
+* Buttons mode - fast speed
+* Sensor mode using the accelerometer
+* Bonus feature: forward/backward tilt changes the game speed
+* Three sensor speed gears: SLOW, NORMAL, FAST
+* Five-lane road
+* Long road board
+* Visual matrix-based game board
+* Obstacles on the road
+* Coins on the road
+* Lives counter
+* Coins counter
+* Distance counter / odometer
+* Crash sound effect
+* Coin collection sound effect
+* Game over screen
+* New Game button after game over
+* Menu button after game over
+* High Scores button after game over
+* High scores screen with two fragments
+* Top 10 high scores table
+* Google Map showing score locations
+* Clicking a score updates the map location
+* Selected score is highlighted in the score table
+* Custom app launcher icon
+* Location support for score records
+* Real phone location when location is available
+* Random valid Israeli city/town location when location is unavailable
 
 ---
 
@@ -52,18 +59,74 @@ It also includes a high scores screen with a top 10 score table and a Google Map
 
 ### Buttons Mode - Slow
 
-The player controls the car using left and right buttons.  
+The player controls the car using left and right buttons.
+
 The game speed is slower and easier.
+
+In this mode, the speed indicator shows:
+
+```text
+SLOW
+```
 
 ### Buttons Mode - Fast
 
-The player controls the car using left and right buttons.  
+The player controls the car using left and right buttons.
+
 The game speed is faster and more challenging.
+
+In this mode, the speed indicator shows:
+
+```text
+FAST
+```
 
 ### Sensor Mode
 
-The player controls the car by tilting the phone left and right using the accelerometer.  
+The player controls the car by tilting the phone left and right using the accelerometer.
+
 In this mode, the left and right buttons are hidden.
+
+Sensor controls:
+
+```text
+Tilt left  -> move the car left
+Tilt right -> move the car right
+```
+
+### Bonus: Sensor Speed Control
+
+The bonus feature is implemented in Sensor Mode.
+
+The player can tilt the phone forward and backward to control the game speed using three speed gears:
+
+```text
+SLOW -> NORMAL -> FAST
+```
+
+The sensor speed system works like gears:
+
+```text
+Tilt forward  -> increase speed by one gear
+Tilt backward -> decrease speed by one gear
+```
+
+For example:
+
+```text
+SLOW + forward tilt   -> NORMAL
+NORMAL + forward tilt -> FAST
+FAST + backward tilt  -> NORMAL
+NORMAL + backward tilt -> SLOW
+```
+
+A short cooldown is used between speed changes so that one tilt does not skip multiple gears at once.
+
+The current speed is displayed on the game screen as:
+
+```text
+SLOW / NORMAL / FAST
+```
 
 ---
 
@@ -73,10 +136,10 @@ In this mode, the left and right buttons are hidden.
 
 The main menu contains:
 
-- Buttons Mode - Slow
-- Buttons Mode - Fast
-- Sensor Mode
-- High Scores
+* Buttons Mode - Slow
+* Buttons Mode - Fast
+* Sensor Mode
+* High Scores
 
 The menu also displays the app logo and the game title.
 
@@ -84,34 +147,47 @@ The menu also displays the app logo and the game title.
 
 The game screen contains:
 
-- Lives counter
-- Coins counter
-- Distance counter
-- Visual road board
-- Player car
-- Obstacles
-- Coins
-- Left and Right buttons in button modes
+* Lives counter
+* Coins counter
+* Distance counter
+* Speed indicator
+* Status message area
+* Visual road board
+* Player car
+* Obstacles
+* Coins
+* Left and Right buttons in button modes
 
 The goal is to avoid obstacles, collect coins, and survive as long as possible.
+
+In button modes, the player moves using the Left and Right buttons.
+
+In sensor mode, the buttons are hidden and the player controls the car using phone tilt.
 
 ### Game Over Screen
 
 When the player loses all lives, the game stops and displays:
 
-- Game Over title
-- Final score
-- New Game button
-- High Scores button
+* Game Over title
+* Final score
+* New Game button
+* Menu button
+* High Scores button
+
+The New Game button starts a new game in the same mode.
+
+The Menu button returns to the main menu.
+
+The High Scores button opens the high scores screen and shows the saved score.
 
 ### High Scores Screen
 
 The high scores screen contains two fragments:
 
-1. `ScoresListFragment`  
+1. `ScoresListFragment`
    Displays the top 10 scores.
 
-2. `ScoresMapFragment`  
+2. `ScoresMapFragment`
    Displays a Google Map with the location of the selected score.
 
 Clicking a score in the table highlights the selected score and updates the marker on the map.
@@ -120,19 +196,19 @@ Clicking a score in the table highlights the selected score and updates the mark
 
 ## Technologies Used
 
-- Kotlin
-- Android Studio
-- XML Layouts
-- Activities
-- Fragments
-- ImageView matrix
-- SharedPreferences
-- JSON
-- SensorManager
-- Accelerometer
-- SoundPool
-- Google Maps SDK for Android
-- LocationManager
+* Kotlin
+* Android Studio
+* XML Layouts
+* Activities
+* Fragments
+* ImageView matrix
+* SharedPreferences
+* JSON
+* SensorManager
+* Accelerometer
+* SoundPool
+* Google Maps SDK for Android
+* LocationManager
 
 ---
 
@@ -150,11 +226,13 @@ GameActivity.kt
 - Visual matrix board
 - Button controls
 - Sensor controls
+- Sensor speed bonus
 - Coins and obstacles
 - Sounds
 - Score calculation
 - Score saving
 - Game over screen
+- Menu navigation from game over
 
 RecordsActivity.kt
 - Hosts the high score fragments
@@ -194,11 +272,48 @@ The best 10 scores are saved locally on the device.
 
 When a score is saved, the app tries to save the current phone location.
 
-If the location is available, the score is saved with the real phone location.
+If location permission is granted and a location is available, the score is saved with the real phone location.
 
 If location permission is denied, GPS is disabled, or no location is available, the app saves the score with a random valid location in Israel.
 
-This allows the high scores map to always show a valid marker.
+The random fallback location is not a random coordinate rectangle.
+Instead, the app chooses a random location from a list of real Israeli cities and towns, such as:
+
+```text
+Tel Aviv
+Jerusalem
+Haifa
+Be'er Sheva
+Netanya
+Rishon LeZion
+Rehovot
+Petah Tikva
+Kfar Saba
+Herzliya
+Holon
+Bat Yam
+Ashdod
+Ashkelon
+Nazareth
+Karmiel
+Acre
+Kiryat Shmona
+Safed
+Tiberias
+Afula
+Hadera
+Ra'anana
+Modi'in
+Netivot
+Sderot
+Dimona
+Mitzpe Ramon
+Eilat
+```
+
+This prevents the map marker from appearing in the sea or outside valid locations.
+
+This also allows the high scores map to always show a valid marker, even if the phone location is turned off.
 
 ---
 
@@ -211,6 +326,10 @@ The app uses internet and location permissions.
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 ```
+
+Location permission is used only for saving the score location.
+
+If the user does not allow location access, the game still works normally and uses a random valid Israeli city/town location for the score record.
 
 ---
 
@@ -236,21 +355,49 @@ This project does not use custom drawing.
 
 The game does **not** use:
 
-- Canvas
-- Paint
-- onDraw
-- SurfaceView
-- Custom drawing
-- Matrix animation
-- Transformation animation
-- ObjectAnimator
-- translationX / translationY for game movement
+* Canvas
+* Paint
+* onDraw
+* SurfaceView
+* Custom drawing
+* Matrix animation
+* Transformation animation
+* ObjectAnimator
+* translationX / translationY for game movement
 
 The game board is implemented as a visual matrix of `ImageView` cells.
 
 Each game tick updates the logical matrix and then updates the visible images in the board.
 
+The player car stays on the bottom row, and the road objects move down through the matrix.
+
 This approach follows the assignment requirements and avoids custom drawing or animation-based movement.
+
+---
+
+## Game Board Implementation
+
+The road is represented using a logical matrix.
+
+Each cell in the matrix can contain:
+
+```text
+EMPTY
+OBSTACLE
+COIN
+```
+
+The visual board is made from `ImageView` cells.
+
+On each game tick:
+
+1. Existing objects move one row down.
+2. A new obstacle or coin may be created at the top row.
+3. Collision is checked against the player car.
+4. Counters are updated.
+5. The visual matrix is rendered again.
+
+This creates the road movement effect without using Canvas or animations.
 
 ---
 
@@ -269,24 +416,34 @@ This approach follows the assignment requirements and avoids custom drawing or a
 
 The demo video should show:
 
-- Main menu
-- Buttons Mode - Slow
-- Buttons Mode - Fast
-- Sensor Mode
-- Obstacles
-- Coins
-- Crash sound
-- Coin sound
-- Distance counter
-- Game over screen
-- High scores screen
-- Score selection
-- Map marker update
+* App icon and app name
+* Main menu
+* Buttons Mode - Slow
+* Buttons Mode - Fast
+* Sensor Mode
+* Left/right movement
+* Sensor left/right tilt movement
+* Bonus sensor speed control
+* Speed indicator changing between SLOW, NORMAL, and FAST
+* Obstacles
+* Coins
+* Crash sound
+* Coin sound
+* Distance counter
+* Game over screen
+* New Game button
+* Menu button
+* High Scores button
+* High scores screen
+* Score selection
+* Map marker update
+* Real location behavior when location is enabled
+* Random Israeli city/town fallback when location is disabled
 
 ---
 
 ## Notes
 
-- The repository should be public for submission.
-- The GitHub link should be submitted together with the demo video.
-- The game was developed as an Android Kotlin project for HW2.
+* The repository should be public for submission.
+* The GitHub link should be submitted together with the demo video.
+* The game was developed as an Android Kotlin project for HW2.
