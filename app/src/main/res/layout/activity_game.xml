@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/game_FRAME_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ECEFF1">
+
+    <LinearLayout
+        android:id="@+id/game_LAYOUT_root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp">
+
+        <LinearLayout
+            android:id="@+id/game_LAYOUT_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layoutDirection="ltr"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="6dp">
+
+            <TextView
+                android:id="@+id/game_TXT_lives"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:text="Lives: 3"
+                android:textColor="#263238"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/game_TXT_coins"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Coins: 0"
+                android:textColor="#263238"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/game_TXT_distance"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="Distance: 0"
+                android:textColor="#263238"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/game_TXT_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:minHeight="26dp"
+            android:text="Avoid obstacles and collect coins"
+            android:textColor="#455A64"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:paddingBottom="6dp" />
+
+        <GridLayout
+            android:id="@+id/game_GRID_board"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layoutDirection="ltr"
+            android:background="#757575"
+            android:columnCount="5"
+            android:padding="6dp"
+            android:rowCount="8">
+
+            <ImageView android:id="@+id/game_IMG_00" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_01" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_02" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_03" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_04" style="@style/GameCell" />
+
+            <ImageView android:id="@+id/game_IMG_10" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_11" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_12" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_13" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_14" style="@style/GameCell" />
+
+            <ImageView android:id="@+id/game_IMG_20" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_21" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_22" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_23" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_24" style="@style/GameCell" />
+
+            <ImageView android:id="@+id/game_IMG_30" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_31" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_32" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_33" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_34" style="@style/GameCell" />
+
+            <ImageView android:id="@+id/game_IMG_40" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_41" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_42" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_43" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_44" style="@style/GameCell" />
+
+            <ImageView android:id="@+id/game_IMG_50" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_51" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_52" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_53" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_54" style="@style/GameCell" />
+
+            <ImageView android:id="@+id/game_IMG_60" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_61" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_62" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_63" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_64" style="@style/GameCell" />
+
+            <ImageView android:id="@+id/game_IMG_70" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_71" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_72" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_73" style="@style/GameCell" />
+            <ImageView android:id="@+id/game_IMG_74" style="@style/GameCell" />
+
+        </GridLayout>
+
+        <LinearLayout
+            android:id="@+id/game_LAYOUT_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layoutDirection="ltr"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingTop="10dp">
+
+            <Button
+                android:id="@+id/game_BTN_left"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:text="Left"
+                android:textAllCaps="false"
+                android:textSize="18sp" />
+
+            <Button
+                android:id="@+id/game_BTN_right"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="Right"
+                android:textAllCaps="false"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/game_LAYOUT_game_over"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="28dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/game_TXT_game_over_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Game Over"
+            android:textColor="#FFFFFF"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/game_TXT_game_over_score"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:paddingBottom="24dp"
+            android:text="Score: 0"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/game_BTN_new_game"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="New Game"
+            android:textAllCaps="false"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/game_BTN_high_scores"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp"
+            android:text="High Scores"
+            android:textAllCaps="false"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/game_TXT_game_over_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="18dp"
+            android:text="See your rank on the scoreboard"
+            android:textColor="#ECEFF1"
+            android:textSize="15sp" />
+
+    </LinearLayout>
+
+</FrameLayout>
